@@ -2,7 +2,7 @@
 
 const mongoose = require("mongoose"); // on utilise la fonction schema de  mongoose //
 
-const thingSchema = mongoose.Schema({
+const sauceSchema = mongoose.Schema({
   description: { type: String, required: true },
   imageUrl: { type: String, required: true },
   userId: { type: String, required: true },
@@ -16,5 +16,5 @@ const thingSchema = mongoose.Schema({
   usersDisliked: [{ type: String }],
 });
 
-module.exports = mongoose.model("Thing", thingSchema);
+module.exports = mongoose.model("Sauce", sauceSchema);
 ///export du shéma , le rend dispo pour appli express//

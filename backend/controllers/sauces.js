@@ -1,39 +1,36 @@
 /////////////////////////////////////////////////////////////////////////////GESTION OPERATIONS CRUD POUR SAUCES///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Thing = require("../models/Thing");
+const Sauce = require("../models/Sauce");
 const fs = require("fs"); ///package systeme de fichier de node acces aux fct pour modif,supprettion///////////
 
 ///////////////////////////////////////////////////////////////////////enregistrement création d'une sauce///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//??sauce  usersliked et usersdisliked aux tableaux vident???////
-exports.createThing = (req, res, next) => {
-  console.log(req);
-  const thingObject = JSON.parse(req.body.sauce);
+
+exports.createSauce = (req, res, next) => {
+  const sauceObject = JSON.parse(req.body.sauce);
   //on doit transformer la chaine en objet///
-  delete thingObject._id;
-  const thing = new Thing({
+  delete sauceObject._id;
+  const sauce = new Sauce({
     likes: 0,
     dislikes: 0,
-    usersliked: [],
-    usersdisliked: [],
-    ...thingObject,
+    ...sauceObject,
     imageUrl: `${req.protocol}://${req.get("host")}/images/${
       ////récupération segment de lurl ou se trouve limage , get host resout lhote du serveur localhost 3000 req protocol = http/////
       req.file.filename
     }`,
   });
-  thing
+  sauce
     .save()
-    .then(() => res.status(201).json({ message: "Sauce enregistrée !" }))
+    .then(() => res.status(201).json({ message: "Sauce bien enregistrée !" }))
     .catch((error) => res.status(400).json({ error }));
 };
 
 ///////////////////////////////////////////////////////////////////////////Récupération d'une seule sauce avec id fourni ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-exports.getOneThing = (req, res, next) => {
-  Thing.findOne({
+exports.getOneSauce = (req, res, next) => {
+  Sauce.findOne({
     _id: req.params.id,
   })
-    .then((thing) => {
-      res.status(200).json(thing);
+    .then((sauce) => {
+      res.status(200).json(sauce);
     })
     .catch((error) => {
       res.status(404).json({
@@ -43,34 +40,36 @@ exports.getOneThing = (req, res, next) => {
 };
 
 ///////////////////////////////////////////////////////////////////////////ternaire a ton recu un nouveau fichier ou non pour modification?Mise a jour de la sauce avec id fourni////////////////////////////////////////////////////////////////////////////////////////
-exports.modifyThing = (req, res, next) => {
-  const thingObject = req.file //nouvelle image//
+exports.modifySauce = (req, res, next) => {
+  const sauceObject = req.file //nouvelle image//
     ? {
-        ...JSON.parse(req.body.thing), //récup infos sur lobjet//
+        ...JSON.parse(req.body.sauce), //récup infos sur lobjet//
         imageUrl: `${req.protocol}://${req.get("host")}/images/${
           //on genere la nouvelle image url//
           req.file.filename ///// si req file existe on traite la nouvelle image///
         }`,
       }
     : { ...req.body }; //// sinon on traite l'objet entrant, ////
-  Thing.updateOne(
+  Sauce.updateOne(
     /// on mofif id de l'objet//
     { _id: req.params.id },
-    { ...thingObject, _id: req.params.id }
+    { ...sauceObject, _id: req.params.id }
   )
-    .then(() => res.status(200).json({ message: "Sauce modifiée !" }))
+    .then(() => res.status(200).json({ message: "Sauce bien modifiée !" }))
     .catch((error) => res.status(400).json({ error }));
 };
 
 //////////////////////////////////////////////////////////////////////////////////////pour supprimer sauce/////////////////////////////////////////////////////////////////////////////////////////////
-exports.deleteThing = (req, res, next) => {
-  Thing.findOne({ _id: req.params.id }) // id comme parametre pr acceder au thong correspondant//
-    .then((thing) => {
-      const filename = thing.imageUrl.split("/images/")[1];
+exports.deleteSauce = (req, res, next) => {
+  Sauce.findOne({ _id: req.params.id }) // id comme parametre pr acceder au sauce correspondant//
+    .then((sauce) => {
+      const filename = sauce.imageUrl.split("/images/")[1];
       fs.unlink(`images/${filename}`, () => {
         //suppretion du fichier et callback  executer qd fichier sup//
-        Thing.deleteOne({ _id: req.params.id })
-          .then(() => res.status(200).json({ message: "Sauce supprimée !" }))
+        Sauce.deleteOne({ _id: req.params.id })
+          .then(() =>
+            res.status(200).json({ message: "Sauce bien supprimée !" })
+          )
           .catch((error) => res.status(400).json({ error }));
       });
     })
@@ -78,10 +77,10 @@ exports.deleteThing = (req, res, next) => {
 };
 
 ////////////////////////////////////////////////////////////////////////////////////récupe tableau de sauces//////////////////////////////////////////////////////////////////////////////////////
-exports.getAllStuff = (req, res, next) => {
-  Thing.find()
-    .then((things) => {
-      res.status(200).json(things);
+exports.getAllSauce = (req, res, next) => {
+  Sauce.find()
+    .then((sauce) => {
+      res.status(200).json(sauce);
     })
     .catch((error) => {
       res.status(400).json({
@@ -99,4 +98,22 @@ exports.getAllStuff = (req, res, next) => {
 //lempecher daimer ou non la meme sauce plusieurs fois
 // mise a jour nombre total jaime je naime pas
 //corps de la demande userid et jaime réponse attendue : message
+
 exports.likeSauce = (req, res, next) => {};
+
+//const userId = req.body.userId
+//const like =  req.body.like
+//const userLiked =
+//const userDisliked =
+//if (like = 1){
+//sauce.like++
+//if(like = -1){
+//sauce.like--}
+//if (like = 0  && userLiked ?){
+
+// like.splice -1 }
+//else if (like = 0  && userDisliked ?){
+//dislike.splice -1
+//}
+
+//

@@ -3,10 +3,15 @@ const bodyParser = require("body-parser"); //gérer la demande post du front: on
 const mongoose = require("mongoose"); // package facilite interactions avec base de données mongodb//
 const path = require("path"); //donne acces au chemin de notre systeme de fichiers//
 
-const stuffRoutes = require("./routes/stuff");
+const saucesRoutes = require("./routes/sauces");
 const userRoutes = require("./routes/user"); //importation du routeur//
 
+const helmet = require("helmet"); //configure entete http lié à la sécurité//
+const dotenv = require("dotenv");
+dotenv.config();
+
 const app = express();
+app.use(helmet());
 
 //////////////////////////////////////////////////pour connexion de lapi à la base de donnée ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 mongoose
@@ -35,7 +40,7 @@ app.use((req, res, next) => {
 app.use(bodyParser.json());
 
 //////////////////////////////////////////////enregistrement du routeur///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-app.use("/api/sauces", stuffRoutes);
+app.use("/api/sauces", saucesRoutes);
 app.use("/api/auth", userRoutes);
 
 //////////////////////////////////////////////pour utiliser images on va dans le dossier static images grace a la methode path qui donne le chemin//////////////////////////////////////////////////////////
