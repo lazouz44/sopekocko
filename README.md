@@ -13,7 +13,7 @@ Rendez-vous sur http://localhost:4200/.
 
 Pour la partie backend :
 
-Cloner le back-end -> 
+Cloner le back-end -> https://github.com/lazouz44/sopekocko
 
 Renommer le fichier .env.exemple en .env et renseigner la clé de connexion 
 avec celle fournie dans le livrable
