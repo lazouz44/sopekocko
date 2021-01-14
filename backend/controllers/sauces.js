@@ -91,14 +91,14 @@ exports.getAllSauce = (req, res, next) => {
 };
 
 ///créa fct likeThings  définit le statut jaime pour userID fourni/////
-//si jaime= 1 user aime la sauce
-///si jaime =0 user annule ce quil aime ou ce quil naime pas
-//si jaime= -1 user naime pas
-//id utilisateur doit etre ajouté ou supprimé du tableau
+//si jaime= 1 user aime la sauce ok
+///si jaime =0 user annule ce quil aime ou ce quil naime pas ok
+//si jaime= -1 user naime pas   ok
+//id utilisateur doit etre ajouté ou supprimé du tableau  ok
 //il faut garder une trace de ses préférences
-//lempecher daimer ou non la meme sauce plusieurs fois
+//lempecher daimer ou non la meme sauce plusieurs fois ok
 // mise a jour nombre total jaime je naime pas
-//corps de la demande userid et jaime réponse attendue : message
+//corps de la demande userid et jaime réponse attendue : message  ok
 
 exports.likeSauce = (req, res, next) => {
   const userId = req.body.userId;
@@ -113,16 +113,17 @@ exports.likeSauce = (req, res, next) => {
       const likes = sauce.likes;
       const dislikes = sauce.dislikes;
 
-      //si user aime//
+      //si user aime une sauce quil na pas déjà aimé //
       if (req.body.like == 1 && !usersLiked.includes(userId)) {
+        //le tableau userLiked ne contient pas userid//
+        //méthode include
         likes += 1; //on ajoute un like//
         usersLiked.push(userId); //je push dans tableau usersliked
       }
-      //Si user n'aime pa//
+      //Si user n'aime pas une sauce quil na pas déjà disliké//
       if (req.body.like == -1 && !usersDisliked.includes(userId)) {
-        sauce.dislikes++;
         dislikes += 1; // on ajoute de 1 la qté  d'utilisateur qui n'aime pas la sauce  dans mon tableau(object) usersdisliked
-        usersDisliked.push(req.body.userId);
+        usersDisliked.push(userId);
 
         //et si le user annule ce quil aime//
       } else if (req.body.like == 0 && usersLiked.includes(userId)) {
