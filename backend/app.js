@@ -1,24 +1,30 @@
+const dotenv = require("dotenv");
+dotenv.config();
+
 const express = require("express");
 const bodyParser = require("body-parser"); //gérer la demande post du front: on appel le package body parser pour extraire lobjet json utilisable de la demande//
 const mongoose = require("mongoose"); // package facilite interactions avec base de données mongodb//
-const path = require("path"); //donne acces au chemin de notre systeme de fichiers//
+const path = require("path"); //donne acces au chemin de notre systeme de fichiers , necessaire pour multer//
 
 const saucesRoutes = require("./routes/sauces");
 const userRoutes = require("./routes/user"); //importation du routeur//
 
 const helmet = require("helmet"); //configure entete http lié à la sécurité//
-const dotenv = require("dotenv");
-dotenv.config();
 
 const app = express();
 app.use(helmet());
 
 //////////////////////////////////////////////////pour connexion de lapi à la base de donnée ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-mongoose
-  .connect(
-    "mongodb+srv://elzaz44:Projet2020@cluster0.guqrg.mongodb.net/<dbname>?retryWrites=true&w=majority",
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  )
+
+mongoose.set("useCreateIndex", true); /*logique pour se connecter à mongodb*/
+mongoose /*au niveau de la déclaration de ma BD ,
+   utilisation de dotenv pour masquer mes identifiants, 
+  création du fichier .env pour stocker ces identifiants d'accés 
+  et placement dans .gitignore */
+  .connect(process.env.MONGODB_CONNECT, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 

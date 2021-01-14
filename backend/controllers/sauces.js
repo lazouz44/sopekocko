@@ -6,21 +6,22 @@ const fs = require("fs"); ///package systeme de fichier de node acces aux fct po
 ///////////////////////////////////////////////////////////////////////enregistrement création d'une sauce///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 exports.createSauce = (req, res, next) => {
-  const sauceObject = JSON.parse(req.body.sauce);
-  //on doit transformer la chaine en objet///
-  delete sauceObject._id;
+  const sauceObject = JSON.parse(req.body.sauce); // on recupere la sauce
+  delete sauceObject._id; //L'id de la sauce est suprimé
   const sauce = new Sauce({
+    // on créé la nouvelle sauce
+    ...sauceObject /*utilisation de l'opérateur spread ... qui copie tous les éléments de req.body*/,
+    imageUrl: `${req.protocol}://${req.get("host")}/images/${
+      req.file.filename
+    }`, //variable pour l'implantation de l'image
     likes: 0,
     dislikes: 0,
-    ...sauceObject,
-    imageUrl: `${req.protocol}://${req.get("host")}/images/${
-      ////récupération segment de lurl ou se trouve limage , get host resout lhote du serveur localhost 3000 req protocol = http/////
-      req.file.filename
-    }`,
+    usersLiked: [],
+    usersDisliked: [],
   });
   sauce
-    .save()
-    .then(() => res.status(201).json({ message: "Sauce bien enregistrée !" }))
+    .save() // on sauvegarde la nouvelle sauce
+    .then(() => res.status(201).json({ message: "Sauce enregistrée" }))
     .catch((error) => res.status(400).json({ error }));
 };
 
@@ -39,7 +40,7 @@ exports.getOneSauce = (req, res, next) => {
     });
 };
 
-///////////////////////////////////////////////////////////////////////////ternaire a ton recu un nouveau fichier ou non pour modification?Mise a jour de la sauce avec id fourni////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////Requête PUT ,ternaire a ton recu un nouveau fichier ou non pour modification?Mise a jour de la sauce avec id fourni////////////////////////////////////////////////////////////////////////////////////////
 exports.modifySauce = (req, res, next) => {
   const sauceObject = req.file //nouvelle image//
     ? {
@@ -59,13 +60,13 @@ exports.modifySauce = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
-//////////////////////////////////////////////////////////////////////////////////////pour supprimer sauce/////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////Requête Delete pour supprimer sauce/////////////////////////////////////////////////////////////////////////////////////////////
 exports.deleteSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id }) // id comme parametre pr acceder au sauce correspondant//
     .then((sauce) => {
       const filename = sauce.imageUrl.split("/images/")[1];
       fs.unlink(`images/${filename}`, () => {
-        //suppretion du fichier et callback  executer qd fichier sup//
+        //suppretion du fichier de l'image en question et callback  executer qd fichier sup//
         Sauce.deleteOne({ _id: req.params.id })
           .then(() =>
             res.status(200).json({ message: "Sauce bien supprimée !" })
@@ -76,7 +77,7 @@ exports.deleteSauce = (req, res, next) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
-////////////////////////////////////////////////////////////////////////////////////récupe tableau de sauces//////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////récupe tableau de sauces, méthode find//////////////////////////////////////////////////////////////////////////////////////
 exports.getAllSauce = (req, res, next) => {
   Sauce.find()
     .then((sauce) => {
@@ -99,21 +100,44 @@ exports.getAllSauce = (req, res, next) => {
 // mise a jour nombre total jaime je naime pas
 //corps de la demande userid et jaime réponse attendue : message
 
-exports.likeSauce = (req, res, next) => {};
+exports.likeSauce = (req, res, next) => {
+  const userId = req.body.userId;
 
-//const userId = req.body.userId
-//const like =  req.body.like
-//const userLiked =
-//const userDisliked =
-//if (like = 1){
-//sauce.like++
-//if(like = -1){
-//sauce.like--}
-//if (like = 0  && userLiked ?){
+  sauce
+    .findOne({ _id: req.params.id }) //recherche de la sauce dans la BD//
 
-// like.splice -1 }
-//else if (like = 0  && userDisliked ?){
-//dislike.splice -1
-//}
+    .then((sauce) => {
+      //On récupère les likes et dislikes de la sauce avant mise à jour
+      const userLiked = sauce.userLiked;
+      const userDisliked = sauce.userDisliked;
+      const likes = sauce.likes;
+      const dislikes = sauce.dislikes;
 
-//
+      //si user aime//
+      if (req.body.like == 1 && !usersLiked.includes(userId)) {
+        likes += 1; //on ajoute un like//
+        usersLiked.push(userId); //je push dans tableau usersliked
+      }
+      //Si user n'aime pa//
+      if (req.body.like == -1 && !usersDisliked.includes(userId)) {
+        sauce.dislikes++;
+        dislikes += 1; // on ajoute de 1 la qté  d'utilisateur qui n'aime pas la sauce  dans mon tableau(object) usersdisliked
+        usersDisliked.push(req.body.userId);
+
+        //et si le user annule ce quil aime//
+      } else if (req.body.like == 0 && usersLiked.includes(userId)) {
+        likes -= 1; // on annule le like//
+        sauce.userLiked.splice(userLiked, 1); //on enleve de 1 dans le tableau de ceux qui aiment //
+
+        //et si user annule ce quil n'aime pas//
+      } else if (req.body.like == 0 && usersDisliked.includes(userId)) {
+        //et si user annule ce quil n'aime pas//
+        disLikes -= 1; //on annule le dislike//
+        sauce.userDisliked.splice(userDisliked, 1); // on enleve de 1 dans le tableau de ceux qui naiment pas//
+      }
+      sauce
+        .save()
+        .then(() => res.status(201).json({ message: "Like pris en compte" }))
+        .catch((error) => res.status(400).json({ error }));
+    });
+};

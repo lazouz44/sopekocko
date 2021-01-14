@@ -10,14 +10,14 @@ module.exports = (req, res, next) => {
     if (req.body.userId && req.body.userId !== userId) {
       //comparaison id utilisateur et celui du token//
       /////si id utilisateur différent de user id on envoie une erreure////
-      throw "Invalid user ID";
+      throw "user ID non valable";
     } else {
       ///si tout roule on passe l'exécution///////////////////////////
       next();
     }
   } catch {
     res.status(401).json({
-      error: new Error("Invalid request!"),
+      error: new Error("Requête non authentifiée!"),
     });
   }
 };
