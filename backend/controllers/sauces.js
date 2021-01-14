@@ -103,15 +103,14 @@ exports.getAllSauce = (req, res, next) => {
 exports.likeSauce = (req, res, next) => {
   const userId = req.body.userId;
 
-  sauce
-    .findOne({ _id: req.params.id }) //recherche de la sauce dans la BD//
+  Sauce.findOne({ _id: req.params.id }) //recherche de la sauce dans la BD//
 
     .then((sauce) => {
       //On récupère les likes et dislikes de la sauce avant mise à jour
-      const userLiked = sauce.userLiked;
-      const userDisliked = sauce.userDisliked;
-      const likes = sauce.likes;
-      const dislikes = sauce.dislikes;
+      let usersLiked = sauce.usersLiked;
+      let usersDisliked = sauce.usersDisliked;
+      let likes = sauce.likes;
+      let dislikes = sauce.dislikes;
 
       //si user aime une sauce quil na pas déjà aimé //
       if (req.body.like == 1 && !usersLiked.includes(userId)) {
@@ -128,13 +127,13 @@ exports.likeSauce = (req, res, next) => {
         //et si le user annule ce quil aime//
       } else if (req.body.like == 0 && usersLiked.includes(userId)) {
         likes -= 1; // on annule le like//
-        sauce.userLiked.splice(userLiked, 1); //on enleve de 1 dans le tableau de ceux qui aiment //
+        sauce.usersLiked.splice(usersLiked, 1); //on enleve de 1 dans le tableau de ceux qui aiment //
 
         //et si user annule ce quil n'aime pas//
       } else if (req.body.like == 0 && usersDisliked.includes(userId)) {
         //et si user annule ce quil n'aime pas//
-        disLikes -= 1; //on annule le dislike//
-        sauce.userDisliked.splice(userDisliked, 1); // on enleve de 1 dans le tableau de ceux qui naiment pas//
+        dislikes -= 1; //on annule le dislike//
+        sauce.usersDisliked.splice(usersDisliked, 1); // on enleve de 1 dans le tableau de ceux qui naiment pas//
       }
       sauce
         .save()
